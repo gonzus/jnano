@@ -18,6 +18,23 @@ public class NanoLibrary {
         AF_SP = get_symbol("AF_SP");
         AF_SP_RAW = get_symbol("AF_SP_RAW");
 
+        NN_SOL_SOCKET = get_symbol("NN_SOL_SOCKET");
+
+        NN_DOMAIN = get_symbol("NN_DOMAIN");
+        NN_PROTOCOL = get_symbol("NN_PROTOCOL");
+        NN_LINGER = get_symbol("NN_LINGER");
+        NN_SNDBUF = get_symbol("NN_SNDBUF");
+        NN_RCVBUF = get_symbol("NN_RCVBUF");
+        NN_SNDTIMEO = get_symbol("NN_SNDTIMEO");
+        NN_RCVTIMEO = get_symbol("NN_RCVTIMEO");
+        NN_RECONNECT_IVL = get_symbol("NN_RECONNECT_IVL");
+        NN_RECONNECT_IVL_MAX = get_symbol("NN_RECONNECT_IVL_MAX");
+        NN_SNDPRIO = get_symbol("NN_SNDPRIO");
+        NN_SNDFD = get_symbol("NN_SNDFD");
+        NN_RCVFD = get_symbol("NN_RCVFD");
+
+        NN_DONTWAIT = get_symbol("NN_DONTWAIT");
+
         NN_INPROC = get_symbol("NN_INPROC");
         NN_IPC = get_symbol("NN_IPC");
         NN_TCP = get_symbol("NN_TCP");
@@ -60,6 +77,15 @@ public class NanoLibrary {
                               int length,
                               int flags);
 
+    public native int nn_getsockopt_int(int socket,
+                                        int level,
+                                        int optidx,
+                                        Integer optval);
+    public native int nn_setsockopt_int(int socket,
+                                        int level,
+                                        int optidx,
+                                        int optval);
+
     public int get_version()
     {
         int maj = get_symbol("NN_VERSION_MAJOR");
@@ -85,6 +111,22 @@ public class NanoLibrary {
 
     public int AF_SP = -1;
     public int AF_SP_RAW = -1;
+
+    public int NN_SOL_SOCKET = -1;
+
+    public int NN_LINGER = -1;
+    public int NN_SNDBUF = -1;
+    public int NN_RCVBUF = -1;
+    public int NN_SNDTIMEO = -1;
+    public int NN_RCVTIMEO = -1;
+    public int NN_RECONNECT_IVL = -1;
+    public int NN_RECONNECT_IVL_MAX = -1;
+    public int NN_SNDPRIO = -1;
+    public int NN_SNDFD = -1;
+    public int NN_RCVFD = -1;
+    public int NN_DOMAIN = -1;
+    public int NN_PROTOCOL = -1;
+    public int NN_DONTWAIT = -1;
 
     public int NN_INPROC = -1;
     public int NN_IPC = -1;
