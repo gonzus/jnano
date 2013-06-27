@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jnano"
+         default="first"
+         basedir="."
+         xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks"
+         >
+
+
+  <!-- PROPERTIES -->
+  <property name="project" value="${ant.project.name}"/>
+
+  <property name="version_major" value="0"/>
+  <property name="version_minor" value="1"/>
+  <property name="version" value="${version_major}.${version_minor}"/>
+
+  <property name="dir.lib" location="${basedir}/lib"/>
+  <property name="dir.src" location="${basedir}/src"/>
+  <property name="dir.build" location="${basedir}/build"/>
+
+  <property name="dir.lib.main" location="${dir.lib}/main"/>
+  <property name="dir.lib.test" location="${dir.lib}/test"/>
+  <property name="dir.lib.perf" location="${dir.lib}/perf"/>
+
+  <property name="dir.src.main" location="${dir.src}/main"/>
+  <property name="dir.src.main.java" location="${dir.src.main}/java"/>
+  <property name="dir.src.main.c" location="${dir.src.main}/c"/>
+
+  <property name="class.jni1" value="org.nanomsg.NanoLibrary"/>
+
+  <property name="dir.src.test" location="${dir.src}/test"/>
+  <property name="dir.src.test.java" location="${dir.src.test}/java"/>
+
+  <property name="dir.src.perf" location="${dir.src}/perf"/>
+  <property name="dir.src.perf.java" location="${dir.src.perf}/java"/>
+
+  <property name="dir.jbuild" location="${dir.build}/java"/>
+  <property name="dir.jbuild.main" location="${dir.jbuild}/main"/>
+  <property name="dir.jbuild.test" location="${dir.jbuild}/test"/>
+  <property name="dir.jbuild.perf" location="${dir.jbuild}/perf"/>
+  <property name="dir.jbuild.jar" location="${dir.jbuild}/jar"/>
+
+  <property name="dir.cbuild" location="${dir.build}/c"/>
+  <property name="dir.cbuild.main" location="${dir.cbuild}/main"/>
+  <property name="dir.cbuild.main.jni" location="${dir.cbuild}/main/jni"/>
+  <property name="dir.cbuild.sharedlibrary" location="${dir.cbuild}/sharedlibrary"/>
+
+  <property name="file.jar.main" value="${dir.jbuild.jar}/${project}-${version}.jar"/>
+  <property name="file.jar.main.sources" value="${dir.jbuild.jar}/${project}-${version}-sources.jar"/>
+  <property name="file.jar.test" value="${dir.jbuild.jar}/${project}-${version}-test.jar"/>
+  <property name="file.jar.perf" value="${dir.jbuild.jar}/${project}-${version}-perf.jar"/>
+  <property name="file.sharedlibrary.main" value="${dir.cbuild.sharedlibrary}/${project}"/>
+
+
+  <!-- CLASSPATHS -->
+
+  <path id="cp.base">
+  </path>
+
+  <path id="cp.local-main">
+    <fileset dir="${dir.lib.main}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <path refid="cp.base"/>
+  </path>
+
+  <path id="cp.local-test">
+    <fileset dir="${dir.lib.test}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <path refid="cp.base"/>
+  </path>
+
+  <path id="cp.local-perf">
+    <fileset dir="${dir.lib.perf}">
+      <include name="**/*.jar"/>
+    </fileset>
+    <path refid="cp.base"/>
+  </path>
+
+  <path id="cp.lib-main">
+    <fileset dir="${dir.jbuild.jar}">
+      <include name="**/*.jar"/>
+      <exclude name="**/*-test.jar"/>
+      <exclude name="**/*-perf.jar"/>
+    </fileset>
+    <path refid="cp.local-main"/>
+  </path>
+
+  <path id="cp.lib-test">
+    <fileset dir="${dir.jbuild.jar}">
+      <include name="**/*-test.jar"/>
+    </fileset>
+    <path refid="cp.local-test"/>
+  </path>
+
+  <path id="cp.lib-perf">
+    <fileset dir="${dir.jbuild.jar}">
+      <include name="**/*-perf.jar"/>
+    </fileset>
+    <path refid="cp.local-perf"/>
+  </path>
+
+  <path id="cp.compile-main">
+    <path refid="cp.local-main"/>
+  </path>
+
+  <path id="cp.compile-test">
+    <path refid="cp.local-main"/>
+    <path refid="cp.local-test"/>
+    <path refid="cp.lib-main"/>
+  </path>
+
+  <path id="cp.compile-perf">
+    <path refid="cp.local-main"/>
+    <path refid="cp.local-perf"/>
+    <path refid="cp.lib-main"/>
+  </path>
+
+  <path id="cp.run-main">
+    <path refid="cp.lib-main"/>
+  </path>
+
+  <path id="cp.run-test">
+    <path refid="cp.lib-main"/>
+    <path refid="cp.lib-test"/>
+  </path>
+
+  <path id="cp.run-perf">
+    <path refid="cp.lib-main"/>
+    <path refid="cp.lib-perf"/>
+  </path>
+
+
+  <!-- TARGETS -->
+  <target name="init">
+    <condition property="isUnix">
+      <os family="unix" />
+    </condition>
+    <condition property="isWindows">
+      <os family="windows" />
+    </condition>
+  </target>
+
+  <target name="init.properties" depends="init,load.win.properties,load.unix.properties">
+    <echo level="info">dir.nano.lib=${dir.nano.lib}</echo>
+    <echo level="info">dir.nano.libname=${dir.nano.libname}</echo>
+    <echo level="info">dir.jni.headers=${dir.jni.headers}</echo>
+  </target>
+
+  <target name="create.dirs" depends="init.properties">
+    <mkdir dir="${dir.jbuild}"/>
+    <mkdir dir="${dir.jbuild.main}"/>
+    <mkdir dir="${dir.jbuild.test}"/>
+    <mkdir dir="${dir.jbuild.perf}"/>
+    <mkdir dir="${dir.jbuild.jar}"/>
+    <mkdir dir="${dir.cbuild}"/>
+    <mkdir dir="${dir.cbuild.main}"/>
+    <mkdir dir="${dir.cbuild.main.jni}"/>
+    <mkdir dir="${dir.cbuild.sharedlibrary}"/>
+  </target>
+
+  <target name="compile.main" depends="create.dirs">
+    <javac includeantruntime="false"
+           destdir="${dir.jbuild.main}"
+           debug="true">
+      <src path="${dir.src.main.java}"/>
+      <src path="${dir.jbuild.main}"/>
+      <classpath refid="cp.compile-main"/>
+      <compilerarg value="-Xlint"/>
+    </javac>
+  </target>
+
+  <target name="jni.genh" depends="jar.main">
+    <javah destdir="${dir.cbuild.main.jni}"
+           verbose="no">
+      <class name="${class.jni1}"/>
+      <classpath refid="cp.lib-main"/>
+    </javah>
+  </target>
+
+  <target name="jni.geno" depends="jni.genh">
+    <antcall target="jni.geno.win"/>
+    <antcall target="jni.geno.unix"/>
+  </target>
+
+  <target name="jni.geno.win" depends="jni.genh" if="isWindows">
+    <cpptasks:cc warnings="none"
+                 subsystem="console"
+                 name="msvc"
+                 objdir="${dir.cbuild.main.jni}"
+                 outtype="shared"
+                 outfile="${file.sharedlibrary.main}">
+      <includepath path="${dir.cbuild.main.jni};${dir.nano.inc}"/>
+      <fileset dir="${dir.src.main.c}" includes="*.c"/>
+      <libset dir="${dir.nano.lib}" libs="${dir.nano.libname}"/>
+    </cpptasks:cc>
+  </target>
+
+  <target name="jni.geno.unix" depends="jni.genh" if="isUnix">
+    <cpptasks:cc warnings="none"
+                 subsystem="console"
+                 name="gcc"
+                 objdir="${dir.cbuild.main.jni}"
+                 outtype="shared"
+                 outfile="${file.sharedlibrary.main}">
+      <includepath path="${dir.cbuild.main.jni};${dir.nano.inc};${dir.jni.headers}"/>
+      <fileset dir="${dir.src.main.c}" includes="*.c"/>
+      <libset dir="${dir.nano.lib}" libs="${dir.nano.libname}"/>
+    </cpptasks:cc>
+  </target>
+
+
+  <target name="jar.main" depends="compile.main">
+    <jar destfile="${file.jar.main}">
+      <manifest>
+        <attribute name="Built-By" value="${user.name}"/>
+      </manifest>
+      <fileset dir="${dir.jbuild.main}"/>
+    </jar>
+  </target>
+
+  <target name="jar.main.sources" depends="jar.main">
+    <jar destfile="${file.jar.main.sources}">
+      <fileset dir="${dir.src.main.java}"/>
+    </jar>
+  </target>
+
+  <target name="compile.test" depends="jar.main">
+    <mkdir dir="${dir.src.test.java}"/>
+    <javac includeantruntime="false"
+           destdir="${dir.jbuild.test}"
+           debug="true">
+      <src path="${dir.src.test.java}"/>
+      <classpath refid="cp.compile-test"/>
+      <compilerarg value="-Xlint"/>
+    </javac>
+  </target>
+
+  <target name="jar.test" depends="compile.test">
+    <jar destfile="${file.jar.test}">
+      <fileset dir="${dir.jbuild.test}"/>
+    </jar>
+  </target>
+
+  <target name="compile.perf" depends="jar.main">
+    <mkdir dir="${dir.lib.perf}"/>
+    <javac includeantruntime="false"
+           destdir="${dir.jbuild.perf}"
+           debug="true">
+      <src path="${dir.src.perf.java}"/>
+      <classpath refid="cp.compile-perf"/>
+      <compilerarg value="-Xlint"/>
+    </javac>
+  </target>
+
+  <target name="jar.perf" depends="compile.perf">
+    <jar destfile="${file.jar.perf}">
+      <fileset dir="${dir.jbuild.perf}"/>
+    </jar>
+  </target>
+
+  <target name="compile" depends="jni.geno,compile.main,compile.test,compile.perf"/>
+  <target name="jar" depends="jni.geno,jar.main,jar.test,jar.perf,jar.main.sources"/>
+
+  <target name="test" depends="jar">
+    <junit failureproperty="junit.failure">
+      <classpath refid="cp.run-test"/>
+
+      <batchtest fork="yes">
+	<formatter type="brief" usefile="false"/>
+	<fileset dir="${dir.jbuild.test}">
+	  <include name="**/*Test*.class"/>
+	</fileset>
+      </batchtest>
+    </junit>
+
+    <fail message="tests failed" if="junit.failure"/>
+  </target>
+
+  <target name="clean">
+    <delete includeEmptyDirs="true" quiet="true">
+      <fileset dir="${dir.build}"/>
+      <fileset dir="." includes="**/*.bak" casesensitive="false"/>
+      <fileset dir="." includes="**/*~ " defaultexcludes="no"/>
+    </delete>
+  </target>
+
+  <target name="run" depends="jni.geno,jar.main">
+    <java fork="true" classname="${cn}">
+      <sysproperty key="java.library.path" value="${dir.cbuild.sharedlibrary}"/>
+      <classpath refid="cp.run-main"/>
+      <arg line="${args}"/>
+    </java>
+  </target>
+
+  <target name="perf" depends="jni.geno,jar.main,jar.perf">
+    <java fork="true" classname="${cn}">
+      <sysproperty key="java.library.path" value="${dir.cbuild.sharedlibrary}"/>
+      <classpath refid="cp.run-perf"/>
+      <arg line="${args}"/>
+    </java>
+  </target>
+
+  <target name="load.unix.properties" if="isUnix">
+    <echo>Loading addtional properties from: build.unix.properties</echo>
+    <property file="build.unix.properties"/>
+  </target>
+  <target name="load.win.properties" if="isWindows">
+    <echo>Loading addtional properties from: build.windows.properties</echo>
+    <property file="build.windows.properties"/>
+  </target>
+
+  <target name="all" depends="test"/>
+  <target name="first" depends="all"/>
+
+</project>
