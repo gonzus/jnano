@@ -176,41 +176,56 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1getsockopt_1int(JNIEnv* 
                                                                         jobject optval)
 {
     jint ret = -1;
+    int go = 0;
 
-    switch (optidx) {
-    case NN_DOMAIN:
-    case NN_PROTOCOL:
-    case NN_LINGER:
-    case NN_SNDBUF:
-    case NN_RCVBUF:
-    case NN_SNDTIMEO:
-    case NN_RCVTIMEO:
-    case NN_RECONNECT_IVL:
-    case NN_RECONNECT_IVL_MAX:
-    case NN_SNDPRIO:
-    case NN_SNDFD:
-    case NN_RCVFD:
-        do {
-            int oval = 0;
-            size_t olen = sizeof(oval);
-
-            ret = nn_getsockopt(socket, level, optidx, &oval, &olen);
-            if (ret >= 0) {
-                jclass cval = 0;
-                jfieldID ival = 0;
-
-                ret = olen;
-
-                cval = (*env)->GetObjectClass(env, optval);
-                NANO_ASSERT(cval);
-
-                ival = (*env)->GetFieldID(env, cval, "value", "I");
-                NANO_ASSERT(ival);
-
-                (*env)->SetIntField(env, optval, ival, oval);
-            }
-        } while (0);
+    switch (level) {
+    case NN_SOL_SOCKET:
+        switch (optidx) {
+        case NN_DOMAIN:
+        case NN_PROTOCOL:
+        case NN_LINGER:
+        case NN_SNDBUF:
+        case NN_RCVBUF:
+        case NN_SNDTIMEO:
+        case NN_RCVTIMEO:
+        case NN_RECONNECT_IVL:
+        case NN_RECONNECT_IVL_MAX:
+        case NN_SNDPRIO:
+        case NN_SNDFD:
+        case NN_RCVFD:
+            go = 1;
+            break;
+        }
         break;
+
+    case NN_TCP:
+        switch (optidx) {
+        case NN_TCP_NODELAY:
+            go = 1;
+            break;
+        }
+        break;
+    }
+
+    if (go) {
+        int oval = 0;
+        size_t olen = sizeof(oval);
+
+        ret = nn_getsockopt(socket, level, optidx, &oval, &olen);
+        if (ret >= 0) {
+            jclass cval = 0;
+            jfieldID ival = 0;
+
+            ret = olen;
+
+            cval = (*env)->GetObjectClass(env, optval);
+            NANO_ASSERT(cval);
+
+            ival = (*env)->GetFieldID(env, cval, "value", "I");
+            NANO_ASSERT(ival);
+
+            (*env)->SetIntField(env, optval, ival, oval);
+        }
     }
 
     return ret;
@@ -224,26 +239,42 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1setsockopt_1int(JNIEnv* 
                                                                         jint optval)
 {
     jint ret = -1;
+    int go = 0;
 
-    switch (optidx) {
-    case NN_LINGER:
-    case NN_SNDBUF:
-    case NN_RCVBUF:
-    case NN_SNDTIMEO:
-    case NN_RCVTIMEO:
-    case NN_RECONNECT_IVL:
-    case NN_RECONNECT_IVL_MAX:
-    case NN_SNDPRIO:
-        do {
-            int oval = optval;
-            size_t olen = sizeof(oval);
-
-            ret = nn_setsockopt(socket, level, optidx, &oval, olen);
-            if (ret >= 0) {
-                ret = olen;
-            }
-        } while (0);
+    switch (level) {
+    case NN_SOL_SOCKET:
+        switch (optidx) {
+        case NN_LINGER:
+        case NN_SNDBUF:
+        case NN_RCVBUF:
+        case NN_SNDTIMEO:
+        case NN_RCVTIMEO:
+        case NN_RECONNECT_IVL:
+        case NN_RECONNECT_IVL_MAX:
+        case NN_SNDPRIO:
+            go = 1;
+            break;
+        }
         break;
+
+    case NN_TCP:
+        switch (optidx) {
+        case NN_TCP_NODELAY:
+            go = 1;
+            fprintf(stderr, "TCP_NODELAY\n");
+            break;
+        }
+        break;
+    }
+
+    if (go) {
+        int oval = optval;
+        size_t olen = sizeof(oval);
+
+        ret = nn_setsockopt(socket, level, optidx, &oval, olen);
+        if (ret >= 0) {
+            ret = olen;
+        }
     }
 
     return ret;

@@ -3,6 +3,7 @@
 
 #include <assert.h>
 #include <nn.h>
+#include <tcp.h>
 
 #define NANO_DEBUG 0
 #define NANO_ASSERT(x) assert(x)

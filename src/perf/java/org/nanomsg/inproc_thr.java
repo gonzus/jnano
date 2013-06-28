@@ -162,9 +162,8 @@ public class inproc_thr {
             return;
         }
 
-        begin = System.nanoTime();
-
         System.out.printf("NANO running %d iterations...\n", message_count);
+        begin = System.nanoTime();
         for (i = 0; i != message_count; ++i) {
             rc = nano.nn_recv(socket, bb, 0, message_size, 0);
             if (rc < 0) {
@@ -177,16 +176,8 @@ public class inproc_thr {
                 return;
             }
         }
-
         elapsed = System.nanoTime() - begin;
         done.await();
-
-        rc = nano.nn_close(socket);
-        if (rc < 0) {
-            System.out.printf("error in nn_close: %s\n",
-                              nano.nn_strerror(nano.nn_errno()));
-            return;
-        }
 
         if (elapsed == 0)
             elapsed = 1;
@@ -197,6 +188,13 @@ public class inproc_thr {
         System.out.printf("message count: %d\n", message_count);
         System.out.printf("mean throughput: %d [msg/s]\n", throughput);
         System.out.printf("mean throughput: %.3f [Mb/s]\n", megabits);
+
+        rc = nano.nn_close(socket);
+        if (rc < 0) {
+            System.out.printf("error in nn_close: %s\n",
+                              nano.nn_strerror(nano.nn_errno()));
+            return;
+        }
 
         System.out.printf("NANO done running\n");
     }

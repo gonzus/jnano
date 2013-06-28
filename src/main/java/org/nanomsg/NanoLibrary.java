@@ -20,6 +20,10 @@ public class NanoLibrary {
 
         NN_SOL_SOCKET = get_symbol("NN_SOL_SOCKET");
 
+        NN_INPROC = get_symbol("NN_INPROC");
+        NN_IPC = get_symbol("NN_IPC");
+        NN_TCP = get_symbol("NN_TCP");
+
         NN_DOMAIN = get_symbol("NN_DOMAIN");
         NN_PROTOCOL = get_symbol("NN_PROTOCOL");
         NN_LINGER = get_symbol("NN_LINGER");
@@ -33,11 +37,16 @@ public class NanoLibrary {
         NN_SNDFD = get_symbol("NN_SNDFD");
         NN_RCVFD = get_symbol("NN_RCVFD");
 
-        NN_DONTWAIT = get_symbol("NN_DONTWAIT");
+        NN_TCP_NODELAY = get_symbol("NN_TCP_NODELAY");
 
-        NN_INPROC = get_symbol("NN_INPROC");
-        NN_IPC = get_symbol("NN_IPC");
-        NN_TCP = get_symbol("NN_TCP");
+        NN_SUB_SUBSCRIBE = get_symbol("NN_SUB_SUBSCRIBE");
+        NN_SUB_UNSUBSCRIBE = get_symbol("NN_SUB_UNSUBSCRIBE");
+
+        NN_REQ_RESEND_IVL = get_symbol("NN_REQ_RESEND_IVL");
+
+        NN_SURVEYOR_DEADLINE = get_symbol("NN_SURVEYOR_DEADLINE");
+
+        NN_DONTWAIT = get_symbol("NN_DONTWAIT");
 
         NN_PAIR = get_symbol("NN_PAIR");
         NN_PUB = get_symbol("NN_PUB");
@@ -51,6 +60,7 @@ public class NanoLibrary {
         NN_SURVEYOR = get_symbol("NN_SURVEYOR");
         NN_RESPONDENT = get_symbol("NN_RESPONDENT");
         NN_BUS = get_symbol("NN_BUS");
+
     }
 
     public native void nn_term();
@@ -114,6 +124,12 @@ public class NanoLibrary {
 
     public int NN_SOL_SOCKET = -1;
 
+    public int NN_INPROC = -1;
+    public int NN_IPC = -1;
+    public int NN_TCP = -1;
+
+    public int NN_DOMAIN = -1;
+    public int NN_PROTOCOL = -1;
     public int NN_LINGER = -1;
     public int NN_SNDBUF = -1;
     public int NN_RCVBUF = -1;
@@ -124,13 +140,17 @@ public class NanoLibrary {
     public int NN_SNDPRIO = -1;
     public int NN_SNDFD = -1;
     public int NN_RCVFD = -1;
-    public int NN_DOMAIN = -1;
-    public int NN_PROTOCOL = -1;
-    public int NN_DONTWAIT = -1;
 
-    public int NN_INPROC = -1;
-    public int NN_IPC = -1;
-    public int NN_TCP = -1;
+    public int NN_TCP_NODELAY = -1;
+
+    public int NN_SUB_SUBSCRIBE = -1;
+    public int NN_SUB_UNSUBSCRIBE = -1;
+
+    public int NN_REQ_RESEND_IVL = -1;
+
+    public int NN_SURVEYOR_DEADLINE = -1;
+
+    public int NN_DONTWAIT = -1;
 
     public int NN_PAIR = -1;
     public int NN_PUB = -1;

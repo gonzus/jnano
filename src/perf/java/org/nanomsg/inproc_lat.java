@@ -148,9 +148,8 @@ public class inproc_lat {
                               addr,
                               done)).start();
 
-        begin = System.nanoTime();
-
         System.out.printf("NANO running %d iterations...\n", roundtrip_count);
+        begin = System.nanoTime();
         for (i = 0; i != roundtrip_count; ++i) {
             rc = nano.nn_send(socket, bb, 0, message_size, 0);
             if (rc < 0) {
@@ -174,9 +173,14 @@ public class inproc_lat {
                 return;
             }
         }
-
         elapsed = System.nanoTime() - begin;
         done.await();
+
+        latency = (double) elapsed / (roundtrip_count * 2 * 1000);
+
+        System.out.printf("message size: %d [B]\n", message_size);
+        System.out.printf("roundtrip count: %d\n", roundtrip_count);
+        System.out.printf("average latency: %.3f [us]\n", latency);
 
         rc = nano.nn_close(socket);
         if (rc < 0) {
@@ -184,12 +188,6 @@ public class inproc_lat {
                               nano.nn_strerror(nano.nn_errno()));
             return;
         }
-
-        latency = (double) elapsed / (roundtrip_count * 2 * 1000);
-
-        System.out.printf("message size: %d [B]\n", message_size);
-        System.out.printf("roundtrip count: %d\n", roundtrip_count);
-        System.out.printf("average latency: %.3f [us]\n", latency);
 
         System.out.printf("NANO done running\n");
     }
