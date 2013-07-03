@@ -44,28 +44,32 @@ can do any of these:
 * `ant perf` -- run performance tests.  See below.
 
 
-### To run a basic tester class, run this on a command window:
+To run a basic tester class, run this on a command window:
 
 `ant -Dcn=org.nanomsg.Tester run`
 
 
-### To run the latency performance test for `inproc` sockets, run this on a command window:
+To run the latency performance test for `inproc` sockets, run this on
+a command window:
 
 `ant -Dcn=org.nanomsg.inproc_lat -Dargs="1 100000" perf`
 
 
-### To run the throughput performance test for `inproc` sockets, run this on a command window:
+To run the throughput performance test for `inproc` sockets, run this
+on a command window:
 
 `ant -Dcn=org.nanomsg.inproc_thr -Dargs="100 100000" perf`
 
 
-### To run the latency performance test for `TCP` sockets, run this on two separate command windows:
+To run the latency performance test for `TCP` sockets, run this on two
+separate command windows:
 
 `ant -Dcn=org.nanomsg.local_lat -Dargs="tcp://127.0.0.1:6789 1 100000" perf`
 `ant -Dcn=org.nanomsg.remote_lat -Dargs="tcp://127.0.0.1:6789 1 100000" perf`
 
 
-### To run the throughput performance test for `TCP` sockets, run this on two separate command windows:
+To run the throughput performance test for `TCP` sockets, run this on
+two separate command windows:
 
 `ant -Dcn=org.nanomsg.local_thr -Dargs="tcp://127.0.0.1:6789 100 100000" perf`
 `ant -Dcn=org.nanomsg.remote_thr -Dargs="tcp://127.0.0.1:6789 100 100000" perf`
