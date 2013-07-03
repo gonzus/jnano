@@ -44,23 +44,47 @@ can do any of these:
 * `ant perf` -- run performance tests.
 
 
-### To run a basic tester class:
+### To run a basic tester class, run this on a command window:
 
 `ant -Dcn=org.nanomsg.Tester run`
 
 
-### To run the two performance tests for `inproc`-based sockets:
+### To run the latency performance test for `inproc` sockets,
+    run this on a command window:
 
 `ant -Dcn=org.nanomsg.inproc_lat -Dargs="1 100000" perf`
 
-`ant -Dcn=org.nanomsg.inproc_thr -Dargs="1 100000" perf`
+
+### To run the throughput performance test for `inproc` sockets,
+    run this on a command window:
+
+`ant -Dcn=org.nanomsg.inproc_thr -Dargs="100 100000" perf`
+
+
+### To run the latency performance test for `TCP` sockets,
+    run this on two command windows:
+
+`ant -Dcn=org.nanomsg.local_lat -Dargs="tcp://127.0.0.1:6789 1 100000" perf`
+`ant -Dcn=org.nanomsg.remote_lat -Dargs="tcp://127.0.0.1:6789 1 100000" perf`
+
+
+### To run the throughput performance test for `TCP` sockets,
+    run this on two command windows:
+
+`ant -Dcn=org.nanomsg.local_thr -Dargs="tcp://127.0.0.1:6789 100 100000" perf`
+`ant -Dcn=org.nanomsg.remote_thr -Dargs="tcp://127.0.0.1:6789 100 100000" perf`
 
 
 Status
 ------
 
-Work in progress.  Right now both performance tests for `inproc`-based
-sockets work, with a performance comparable to what you get on C.
+This is a work in progress.
+
+Everything works pretty well and performance is comparable to what you
+get on C.
+
+I am still looking for the right way to integrate the polling support
+provided by `nanomsg` into the native Java way to do demultiplexing.
 
 
 License
