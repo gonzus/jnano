@@ -50,26 +50,26 @@ can do any of these:
 
 
 ### To run the latency performance test for `inproc` sockets,
-    run this on a command window:
+### run this on a command window:
 
 `ant -Dcn=org.nanomsg.inproc_lat -Dargs="1 100000" perf`
 
 
 ### To run the throughput performance test for `inproc` sockets,
-    run this on a command window:
+### run this on a command window:
 
 `ant -Dcn=org.nanomsg.inproc_thr -Dargs="100 100000" perf`
 
 
 ### To run the latency performance test for `TCP` sockets,
-    run this on two command windows:
+### run this on two separate command windows:
 
 `ant -Dcn=org.nanomsg.local_lat -Dargs="tcp://127.0.0.1:6789 1 100000" perf`
 `ant -Dcn=org.nanomsg.remote_lat -Dargs="tcp://127.0.0.1:6789 1 100000" perf`
 
 
 ### To run the throughput performance test for `TCP` sockets,
-    run this on two command windows:
+### run this on two separate command windows:
 
 `ant -Dcn=org.nanomsg.local_thr -Dargs="tcp://127.0.0.1:6789 100 100000" perf`
 `ant -Dcn=org.nanomsg.remote_thr -Dargs="tcp://127.0.0.1:6789 100 100000" perf`
@@ -78,13 +78,14 @@ can do any of these:
 Status
 ------
 
-This is a work in progress.
+*This is a work in progress.*
 
 Everything works pretty well and performance is comparable to what you
 get on C.
 
 I am still looking for the right way to integrate the polling support
-provided by `nanomsg` into the native Java way to do demultiplexing.
+provided by `nanomsg` into the native Java way of doing
+demultiplexing.
 
 
 License
