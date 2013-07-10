@@ -263,9 +263,10 @@
   <target name="compile" depends="jni.geno,compile.main,compile.test,compile.perf"/>
   <target name="jar" depends="jni.geno,jar.main,jar.test,jar.perf,jar.main.sources"/>
 
-  <target name="test" depends="jar">
+  <target name="test" depends="jni.geno,jar.main,jar.test">
     <junit failureproperty="junit.failure">
       <classpath refid="cp.run-test"/>
+      <sysproperty key="java.library.path" value="${dir.cbuild.sharedlibrary}"/>
 
       <batchtest fork="yes">
 	<formatter type="brief" usefile="false"/>
