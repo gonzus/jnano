@@ -98,10 +98,19 @@ public class NanoLibrary {
 
     public int get_version()
     {
-        int maj = get_symbol("NN_VERSION_MAJOR");
-        int min = get_symbol("NN_VERSION_MINOR");
-        int pat = get_symbol("NN_VERSION_PATCH");
-        int ver = maj * 10000 + min * 100 + pat;
+        int maj, min, pat, ver;
+        maj = get_symbol("NN_VERSION_MAJOR");
+        min = get_symbol("NN_VERSION_MINOR");
+        pat = get_symbol("NN_VERSION_PATCH");
+        
+        if (maj == -1 || min == -1 || pat == -1) {
+            maj = get_symbol("NN_VERSION_CURRENT");
+            min = get_symbol("NN_VERSION_REVISION");
+            pat = get_symbol("NN_VERSION_AGE");
+        }
+        
+        ver = maj * 10000 + min * 100 + pat;
+        System.out.println("maj: " + maj + " min: " + min + " pat: " + pat + " ver: " + ver);
 
         return ver;
     }
