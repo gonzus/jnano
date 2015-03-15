@@ -157,16 +157,27 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1send(JNIEnv* env,
                                                              jobject obj,
                                                              jint socket,
                                                              jobject buffer,
-                                                             jint offset,
-                                                             jint length,
                                                              jint flags)
 {
-    jbyte* cbuf = 0;
-    jint ret = 0;
+    jclass    cls;
 
-    cbuf = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
+    jint      position;
+    jint      limit;
+    jint      send_length;
+    jbyte*    cbuf;
+    jint      ret;
+    jint      new_position;
+
+    position     = (*env)->CallIntMethod(env, buffer, position_r_mid);
+    limit        = (*env)->CallIntMethod(env, buffer, limit_r_mid);
+    send_length  = position - limit;
+    cbuf         = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
+
     NANO_ASSERT(cbuf);
-    ret = nn_send(socket, cbuf + offset, length, flags);
+    ret          = nn_send(socket, cbuf + position, limit - position, flags);
+    new_position = ret <= 0? 0 : position + ret;
+
+    (*env)->CallObjectMethod(env, buffer, position_w_mid, new_position);
 
     return ret;
 }
