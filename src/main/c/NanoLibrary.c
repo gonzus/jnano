@@ -29,7 +29,7 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                "(I)V");
     NANO_ASSERT(mnew);
 
-    for(count = 0; ; ++count) {
+    for (count = 0; ; ++count) {
         const char* ckey;
         int cval;
         jstring jkey =  0;
