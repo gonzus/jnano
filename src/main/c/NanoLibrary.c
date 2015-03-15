@@ -3,6 +3,11 @@
 
 #include "org_nanomsg_NanoLibrary.h"
 
+static jclass    buffer_cls;
+static jmethodID position_r_mid;
+static jmethodID position_w_mid;
+static jmethodID limit_r_mid;
+
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                                                   jobject obj,
                                                                   jobject map)
@@ -51,6 +56,11 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
         (*env)->CallObjectMethod(env, map, mput, jkey, jval);
         // fprintf(stderr, "Inserted symbol in map: [%s] -> %d\n", ckey, cval);
     }
+
+    buffer_cls = (*env)->FindClass(env, "java/nio/Buffer");
+    position_r_mid = (*env)->GetMethodID(env, buffer_cls, "position", "()I");
+    position_w_mid = (*env)->GetMethodID(env, buffer_cls, "position", "(I)Ljava/nio/Buffer;");
+    limit_r_mid    = (*env)->GetMethodID(env, buffer_cls, "limit",    "()I");
 
     return count;
 }
