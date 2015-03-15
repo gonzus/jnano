@@ -49,7 +49,8 @@ public class local_thr {
         ByteBuffer bb = ByteBuffer.allocateDirect(message_size);
 
         /*  First message is used to start the stopwatch. */
-        rc = nano.nn_recv(socket, bb, 0, message_size, 0);
+        bb.clear();
+        rc = nano.nn_recv(socket, bb, 0);
         if (rc < 0) {
             System.out.printf("INITIAL error in nn_recv: %s\n",
                               nano.nn_strerror(nano.nn_errno()));
@@ -63,7 +64,8 @@ public class local_thr {
         System.out.printf("NANO running %d iterations...\n", message_count);
         begin = System.nanoTime();
         for (i = 0; i != message_count; i++) {
-            rc = nano.nn_recv(socket, bb, 0, message_size, 0);
+            bb.clear();
+            rc = nano.nn_recv(socket, bb, 0);
             if (rc < 0) {
                 System.out.printf("error in nn_recv: %s\n",
                                   nano.nn_strerror(nano.nn_errno()));

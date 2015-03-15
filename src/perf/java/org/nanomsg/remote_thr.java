@@ -49,7 +49,8 @@ public class remote_thr {
         }
 
         /*  First message is used to start the stopwatch. */
-        rc = nano.nn_send(socket, bb, 0, message_size, 0);
+        bb.rewind();
+        rc = nano.nn_send(socket, bb, 0);
         if (rc < 0) {
             System.out.printf("INITIAL error in nn_send: %s\n",
                               nano.nn_strerror(nano.nn_errno()));
@@ -62,7 +63,8 @@ public class remote_thr {
 
         System.out.printf("NANO running %d iterations...\n", message_count);
         for (i = 0; i != message_count; ++i) {
-            rc = nano.nn_send(socket, bb, 0, message_size, 0);
+            bb.rewind();
+            rc = nano.nn_send(socket, bb, 0);
             if (rc < 0) {
                 System.out.printf("error in nn_send: %s\n",
                                   nano.nn_strerror(nano.nn_errno()));
