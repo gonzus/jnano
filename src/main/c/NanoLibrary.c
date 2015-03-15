@@ -142,6 +142,17 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1shutdown(JNIEnv* env,
     return nn_shutdown(socket, how);
 }
 
+/*
+ * Write up to remaining() bytes to the queue, where remaining() = limit() -
+ * position().
+ *
+ * Suppose that a byte sequence of length n is written, where 0 <= n <= r.
+ * This byte sequence will be transferred from the buffer starting at index p,
+ * where p is the buffer's position at the moment this method is invoked; the
+ * index of the last byte written will be p + n - 1. Upon return the buffer's
+ * position will be equal to p + n; its limit will not have changed.
+ *
+ */
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1send(JNIEnv* env,
                                                              jobject obj,
                                                              jint socket,
@@ -160,6 +171,18 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1send(JNIEnv* env,
     return ret;
 }
 
+/*
+ * Read up to remaining() bytes from the queue, where remaining() = limit() -
+ * position().
+ *
+ * Suppose that a byte sequence of length n is read, where 0 <= n <= r. This
+ * byte sequence will be transferred into the buffer so that the first byte in
+ * the sequence is at index p and the last byte is at index p + n - 1, where p
+ * is the buffer's position at the moment this method is invoked. Upon return
+ * the buffer's position will be equal to p + n; its limit will not have
+ * changed.
+ *
+ */
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1recv(JNIEnv* env,
                                                              jobject obj,
                                                              jint socket,
