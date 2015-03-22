@@ -78,13 +78,9 @@ public class NanoLibrary {
                                   int how);
     public native int nn_send(int socket,
                               ByteBuffer buffer,
-                              int offset,
-                              int length,
                               int flags);
     public native int nn_recv(int socket,
                               ByteBuffer buffer,
-                              int offset,
-                              int length,
                               int flags);
 
     public native int nn_getsockopt_int(int socket,

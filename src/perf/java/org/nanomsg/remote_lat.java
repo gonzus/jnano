@@ -56,7 +56,8 @@ public class remote_lat {
         System.out.printf("NANO running %d iterations...\n", roundtrip_count);
         begin = System.nanoTime();
         for (i = 0; i != roundtrip_count; ++i) {
-            rc = nano.nn_send(socket, bb, 0, message_size, 0);
+            bb.rewind();
+            rc = nano.nn_send(socket, bb, 0);
             if (rc < 0) {
                 System.out.printf("error in nn_send: %s\n",
                                   nano.nn_strerror(nano.nn_errno()));
@@ -67,7 +68,8 @@ public class remote_lat {
                 return;
             }
 
-            rc = nano.nn_recv(socket, bb, 0, message_size, 0);
+            bb.clear();
+            rc = nano.nn_recv(socket, bb, 0);
             if (rc < 0) {
                 System.out.printf("error in nn_recv: %s\n",
                                   nano.nn_strerror(nano.nn_errno()));

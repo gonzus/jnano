@@ -3,6 +3,11 @@
 
 #include "org_nanomsg_NanoLibrary.h"
 
+static jclass    buffer_cls;
+static jmethodID position_r_mid;
+static jmethodID position_w_mid;
+static jmethodID limit_r_mid;
+
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                                                   jobject obj,
                                                                   jobject map)
@@ -29,7 +34,7 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                "(I)V");
     NANO_ASSERT(mnew);
 
-    for(count = 0; ; ++count) {
+    for (count = 0; ; ++count) {
         const char* ckey;
         int cval;
         jstring jkey =  0;
@@ -51,6 +56,11 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
         (*env)->CallObjectMethod(env, map, mput, jkey, jval);
         // fprintf(stderr, "Inserted symbol in map: [%s] -> %d\n", ckey, cval);
     }
+
+    buffer_cls = (*env)->FindClass(env, "java/nio/Buffer");
+    position_r_mid = (*env)->GetMethodID(env, buffer_cls, "position", "()I");
+    position_w_mid = (*env)->GetMethodID(env, buffer_cls, "position", "(I)Ljava/nio/Buffer;");
+    limit_r_mid    = (*env)->GetMethodID(env, buffer_cls, "limit",    "()I");
 
     return count;
 }
@@ -132,38 +142,83 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1shutdown(JNIEnv* env,
     return nn_shutdown(socket, how);
 }
 
+/*
+ * Write up to remaining() bytes to the queue, where remaining() = limit() -
+ * position().
+ *
+ * Suppose that a byte sequence of length n is written, where 0 <= n <= r.
+ * This byte sequence will be transferred from the buffer starting at index p,
+ * where p is the buffer's position at the moment this method is invoked; the
+ * index of the last byte written will be p + n - 1. Upon return the buffer's
+ * position will be equal to p + n; its limit will not have changed.
+ *
+ */
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1send(JNIEnv* env,
                                                              jobject obj,
                                                              jint socket,
                                                              jobject buffer,
-                                                             jint offset,
-                                                             jint length,
                                                              jint flags)
 {
-    jbyte* cbuf = 0;
-    jint ret = 0;
+    jclass    cls;
 
-    cbuf = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
+    jint      position;
+    jint      limit;
+    jint      send_length;
+    jbyte*    cbuf;
+    jint      ret;
+    jint      new_position;
+
+    position     = (*env)->CallIntMethod(env, buffer, position_r_mid);
+    limit        = (*env)->CallIntMethod(env, buffer, limit_r_mid);
+    send_length  = limit - position;
+    cbuf         = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
+
     NANO_ASSERT(cbuf);
-    ret = nn_send(socket, cbuf + offset, length, flags);
+    ret          = nn_send(socket, cbuf + position, send_length, flags);
+    new_position = ret <= 0? 0 : position + ret;
+
+    (*env)->CallObjectMethod(env, buffer, position_w_mid, new_position);
 
     return ret;
 }
 
+/*
+ * Read up to remaining() bytes from the queue, where remaining() = limit() -
+ * position().
+ *
+ * Suppose that a byte sequence of length n is read, where 0 <= n <= r. This
+ * byte sequence will be transferred into the buffer so that the first byte in
+ * the sequence is at index p and the last byte is at index p + n - 1, where p
+ * is the buffer's position at the moment this method is invoked. Upon return
+ * the buffer's position will be equal to p + n; its limit will not have
+ * changed.
+ *
+ */
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1recv(JNIEnv* env,
                                                              jobject obj,
                                                              jint socket,
                                                              jobject buffer,
-                                                             jint offset,
-                                                             jint length,
                                                              jint flags)
 {
-    jbyte* cbuf = 0;
-    jint ret = 0;
+    jclass    cls;
 
-    cbuf = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
+    jint      position;
+    jint      limit;
+    jint      recv_length;
+    jbyte*    cbuf;
+    jint      ret;
+    jint      new_position;
+
+    position     = (*env)->CallIntMethod(env, buffer, position_r_mid);
+    limit        = (*env)->CallIntMethod(env, buffer, limit_r_mid);
+    recv_length  = position - limit;
+    cbuf         = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
+
     NANO_ASSERT(cbuf);
-    ret = nn_recv(socket, cbuf + offset, length, flags);
+    ret          = nn_recv(socket, cbuf + position, limit - position, flags);
+    new_position = ret <= 0? 0 : position + ret;
+
+    (*env)->CallObjectMethod(env, buffer, position_w_mid, new_position);
 
     return ret;
 }
