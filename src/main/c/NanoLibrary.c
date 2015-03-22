@@ -170,11 +170,11 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1send(JNIEnv* env,
 
     position     = (*env)->CallIntMethod(env, buffer, position_r_mid);
     limit        = (*env)->CallIntMethod(env, buffer, limit_r_mid);
-    send_length  = position - limit;
+    send_length  = limit - position;
     cbuf         = (jbyte*) (*env)->GetDirectBufferAddress(env, buffer);
 
     NANO_ASSERT(cbuf);
-    ret          = nn_send(socket, cbuf + position, limit - position, flags);
+    ret          = nn_send(socket, cbuf + position, send_length, flags);
     new_position = ret <= 0? 0 : position + ret;
 
     (*env)->CallObjectMethod(env, buffer, position_w_mid, new_position);
