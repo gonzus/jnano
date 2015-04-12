@@ -61,6 +61,38 @@ public class NanoLibrary {
         NN_RESPONDENT = get_symbol("NN_RESPONDENT");
         NN_BUS = get_symbol("NN_BUS");
 
+		ENOTSUP = get_symbol("ENOTSUP");
+		EPROTONOSUPPORT = get_symbol("EPROTONOSUPPORT");
+		ENOBUFS = get_symbol("ENOBUFS");
+		ENETDOWN = get_symbol("ENETDOWN");
+		EADDRINUSE = get_symbol("EADDRINUSE");
+		EADDRNOTAVAIL = get_symbol("EADDRNOTAVAIL");
+		ECONNREFUSED = get_symbol("ECONNREFUSED");
+		EINPROGRESS = get_symbol("EINPROGRESS");
+		ENOTSOCK = get_symbol("ENOTSOCK");
+		EAFNOSUPPORT = get_symbol("EAFNOSUPPORT");
+		EPROTO = get_symbol("EPROTO");
+		EAGAIN = get_symbol("EAGAIN");
+		EBADF = get_symbol("EBADF");
+		EINVAL = get_symbol("EINVAL");
+		EMFILE = get_symbol("EMFILE");
+		EFAULT = get_symbol("EFAULT");
+		EACCES = get_symbol("EACCES");
+		EACCESS = get_symbol("EACCESS");
+		ENETRESET = get_symbol("ENETRESET");
+		ENETUNREACH = get_symbol("ENETUNREACH");
+		EHOSTUNREACH = get_symbol("EHOSTUNREACH");
+		ENOTCONN = get_symbol("ENOTCONN");
+		EMSGSIZE = get_symbol("EMSGSIZE");
+		ETIMEDOUT = get_symbol("ETIMEDOUT");
+		ECONNABORTED = get_symbol("ECONNABORTED");
+		ECONNRESET = get_symbol("ECONNRESET");
+		ENOPROTOOPT = get_symbol("ENOPROTOOPT");
+		EISCONN = get_symbol("EISCONN");
+		ESOCKTNOSUPPORT = get_symbol("ESOCKTNOSUPPORT");
+		ETERM = get_symbol("ETERM");
+		EFSM = get_symbol("EFSM");
+
     }
 
     public native void nn_term();
@@ -83,6 +115,21 @@ public class NanoLibrary {
                               ByteBuffer buffer,
                               int flags);
 
+   public native int nn_sendstr(int socket,
+            String str,
+            int flags);
+    
+    public native int nn_sendbyt(int socket,
+                                 byte[] str,
+                                 int flags);
+    
+    public native String nn_recvstr(int socket,
+    						int flags);
+    
+    public native byte[] nn_recvbyt(int socket,
+			int flags);
+
+
     public native int nn_getsockopt_int(int socket,
                                         int level,
                                         int optidx,
@@ -91,6 +138,12 @@ public class NanoLibrary {
                                         int level,
                                         int optidx,
                                         int optval);
+
+    public native int nn_setsockopt_str(int socket,
+                                        int level,
+										int optidx,
+                                        String optval);
+
 
     public int get_version()
     {
@@ -169,6 +222,39 @@ public class NanoLibrary {
     public int NN_SURVEYOR = -1;
     public int NN_RESPONDENT = -1;
     public int NN_BUS = -1;
+
+
+	public int  ENOTSUP = -1; 
+	public int  EPROTONOSUPPORT = -1; 
+	public int  ENOBUFS = -1; 
+	public int  ENETDOWN = -1; 
+	public int  EADDRINUSE = -1; 
+	public int  EADDRNOTAVAIL = -1; 
+	public int  ECONNREFUSED = -1; 
+	public int  EINPROGRESS = -1; 
+	public int  ENOTSOCK = -1; 
+	public int  EAFNOSUPPORT = -1; 
+	public int  EPROTO = -1; 
+	public int  EAGAIN = -1; 
+	public int  EBADF = -1; 
+	public int  EINVAL = -1; 
+	public int  EMFILE = -1; 
+	public int  EFAULT = -1; 
+	public int  EACCES = -1; 
+	public int  EACCESS = -1; 
+	public int  ENETRESET = -1; 
+	public int  ENETUNREACH = -1; 
+	public int  EHOSTUNREACH = -1; 
+	public int  ENOTCONN = -1; 
+	public int  EMSGSIZE = -1; 
+	public int  ETIMEDOUT = -1; 
+	public int  ECONNABORTED = -1; 
+	public int  ECONNRESET = -1; 
+	public int  ENOPROTOOPT = -1; 
+	public int  EISCONN = -1; 
+	public int  ESOCKTNOSUPPORT = -1; 
+	public int  ETERM = -1; 
+	public int  EFSM = -1;
 
 
     private static void ensureNativeCode()
