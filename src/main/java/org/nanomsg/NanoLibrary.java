@@ -115,6 +115,20 @@ public class NanoLibrary {
                               ByteBuffer buffer,
                               int flags);
 
+   public native int nn_sendstr(int socket,
+            String str,
+            int flags);
+    
+    public native int nn_sendbyte(int socket,
+                                 byte[] str,
+                                 int flags);
+
+    public native String nn_recvstr(int socket,
+    						int flags);
+    
+    public native byte[] nn_recvbyte(int socket,
+			int flags);
+
     public native int nn_getsockopt_int(int socket,
                                         int level,
                                         int optidx,

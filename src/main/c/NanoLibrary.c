@@ -334,3 +334,67 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1setsockopt_1int(JNIEnv* 
 
     return ret;
 }
+
+JNIEXPORT jstring JNICALL Java_org_nanomsg_NanoLibrary_nn_1recvstr(JNIEnv* env,
+                                                             jobject obj,
+                                                             jint socket,
+                                                             jint flags)
+{
+	void *buf;
+	int ret = nn_recv(socket, &buf, NN_MSG, flags);
+	if (ret < 0) return 0;
+	jstring retst = (*env)->NewStringUTF(env, buf);
+	nn_freemsg(buf);
+	return retst;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_org_nanomsg_NanoLibrary_nn_1recvbyte(JNIEnv* env,
+                                                             jobject obj,
+                                                             jint socket,
+                                                             jint flags)
+{
+	void *buf;
+	int ret = nn_recv(socket, &buf, NN_MSG, flags);
+	if (ret < 0) return 0;
+    jbyteArray result = (*env)->NewByteArray(env, ret);
+    (*env)->SetByteArrayRegion(env, result, 0, ret, (const jbyte*) buf);
+	nn_freemsg(buf);
+	return result;
+}
+
+JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1sendbyte(JNIEnv* env,
+                                                             jobject obj,
+                                                             jint socket,
+                                                             jbyteArray array,
+                                                             jint flags)
+{
+    jbyte* cbuf = 0;
+    jint ret = 0;
+    
+    jsize length = (*env)->GetArrayLength(env, array);
+    cbuf = (*env)->GetByteArrayElements(env, array, 0);
+    NANO_ASSERT(cbuf);
+    ret = nn_send(socket, cbuf, length, flags);
+    (*env)->ReleaseByteArrayElements(env, array, cbuf, JNI_ABORT);
+    
+    return ret;
+}
+
+
+
+JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1sendstr(JNIEnv* env,
+                                                             jobject obj,
+                                                             jint socket,
+                                                             jstring str,
+                                                             jint flags)
+{
+    jint ret = 0;
+    
+    char *cbuf;
+    cbuf = (*env)->GetStringUTFChars( env, str , NULL ) ;
+    NANO_ASSERT(cbuf);
+    ret = nn_send(socket, cbuf, strlen(cbuf) + 1, flags);
+    (*env)->ReleaseStringUTFChars(env, str,cbuf);
+    return ret;
+}
+
