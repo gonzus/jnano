@@ -398,3 +398,52 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1sendstr(JNIEnv* env,
     return ret;
 }
 
+
+JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1setsockopt_1str(JNIEnv* env,
+                                                                        jobject obj,
+                                                                        jint socket,
+                                                                        jint level,
+                                                                        jint optidx,
+                                                                        jstring optval)
+{
+    jint ret = -1;
+    int go = 0;
+    
+    switch (level) {
+        case NN_SOL_SOCKET:
+            switch (optidx) {
+                case NN_SOCKET_NAME:
+                    go = 1;
+                    break;
+            }
+            break;
+            
+        case NN_TCP:
+            switch (optidx) {
+                case NN_TCP_NODELAY:
+                    go = 1;
+                    fprintf(stderr, "TCP_NODELAY\n");
+                    break;
+            }
+            break;
+            
+        default:
+            go = 1;
+    }
+    
+    if (go) {
+        char *cbuf;
+        cbuf = (*env)->GetStringUTFChars( env, optval , NULL ) ;
+        NANO_ASSERT(cbuf);
+
+        size_t olen = strlen(cbuf);
+        ret = nn_setsockopt(socket, level, optidx, cbuf, olen);
+        if (ret >= 0) {
+            ret = olen;
+        }
+        (*env)->ReleaseStringUTFChars(env, optval,cbuf);
+    }
+    
+    return ret;
+}
+

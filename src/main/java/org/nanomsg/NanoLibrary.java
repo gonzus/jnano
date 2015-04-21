@@ -138,6 +138,12 @@ public class NanoLibrary {
                                         int optidx,
                                         int optval);
 
+	public native int nn_setsockopt_str(int socket,
+                                        int level,
+										int optidx,
+                                        String optval);
+
+
     public int get_version()
     {
         int maj, min, pat, ver;
