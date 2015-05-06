@@ -1,5 +1,6 @@
 package org.nanomsg;
 
+import java.lang.IllegalArgumentException;
 import java.lang.System;
 import java.util.Map;
 import java.util.HashMap;
@@ -177,7 +178,7 @@ public class NanoLibrary {
     {
         Integer value = symbols.get(name);
         if (value == null)
-            return -1;
+            throw new IllegalArgumentException("Argument " + name + " not found in symbols.");
         return value.intValue();
     }
 
