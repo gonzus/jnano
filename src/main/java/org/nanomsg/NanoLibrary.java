@@ -55,8 +55,6 @@ public class NanoLibrary {
         NN_SUB = get_symbol("NN_SUB");
         NN_REP = get_symbol("NN_REP");
         NN_REQ = get_symbol("NN_REQ");
-        NN_SOURCE = get_symbol("NN_SOURCE");
-        NN_SINK = get_symbol("NN_SINK");
         NN_PUSH = get_symbol("NN_PUSH");
         NN_PULL = get_symbol("NN_PULL");
         NN_SURVEYOR = get_symbol("NN_SURVEYOR");
@@ -220,8 +218,6 @@ public class NanoLibrary {
     public int NN_SUB = -1;
     public int NN_REP = -1;
     public int NN_REQ = -1;
-    public int NN_SOURCE = -1;
-    public int NN_SINK = -1;
     public int NN_PUSH = -1;
     public int NN_PULL = -1;
     public int NN_SURVEYOR = -1;

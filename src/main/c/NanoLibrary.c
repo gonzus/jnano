@@ -81,6 +81,27 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
         jval = (*env)->NewObject(env, cint, mnew, cval);
         NANO_ASSERT(jval);
         (*env)->CallObjectMethod(env, map, mput, jkey, jval);
+
+        ckey = "EACCESS"; cval = EACCESS;
+        jkey = (*env)->NewStringUTF(env, ckey);
+        NANO_ASSERT(jkey);
+        jval = (*env)->NewObject(env, cint, mnew, cval);
+        NANO_ASSERT(jval);
+        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
+
+        ckey = "EISCONN"; cval = EISCONN;
+        jkey = (*env)->NewStringUTF(env, ckey);
+        NANO_ASSERT(jkey);
+        jval = (*env)->NewObject(env, cint, mnew, cval);
+        NANO_ASSERT(jval);
+        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
+
+        ckey = "ESOCKTNOSUPPORT"; cval = ESOCKTNOSUPPORT;
+        jkey = (*env)->NewStringUTF(env, ckey);
+        NANO_ASSERT(jkey);
+        jval = (*env)->NewObject(env, cint, mnew, cval);
+        NANO_ASSERT(jval);
+        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
     }
 
     buffer_cls = (*env)->FindClass(env, "java/nio/Buffer");
