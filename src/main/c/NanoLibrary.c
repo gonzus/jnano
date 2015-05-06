@@ -8,6 +8,11 @@ static jmethodID position_r_mid;
 static jmethodID position_w_mid;
 static jmethodID limit_r_mid;
 
+static jclass pollfd_class;
+static jfieldID pollfd_fd;
+static jfieldID pollfd_events;
+static jfieldID pollfd_revents;
+
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                                                   jobject obj,
                                                                   jobject map)
@@ -57,10 +62,36 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
         // fprintf(stderr, "Inserted symbol in map: [%s] -> %d\n", ckey, cval);
     }
 
+    {
+        const char* ckey;
+        int cval;
+        jstring jkey =  0;
+        jobject jval = 0;
+
+        ckey = "NN_POLLIN"; cval = NN_POLLIN;
+        jkey = (*env)->NewStringUTF(env, ckey);
+        NANO_ASSERT(jkey);
+        jval = (*env)->NewObject(env, cint, mnew, cval);
+        NANO_ASSERT(jval);
+        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
+
+        ckey = "NN_POLLOUT"; cval = NN_POLLOUT;
+        jkey = (*env)->NewStringUTF(env, ckey);
+        NANO_ASSERT(jkey);
+        jval = (*env)->NewObject(env, cint, mnew, cval);
+        NANO_ASSERT(jval);
+        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
+    }
+
     buffer_cls = (*env)->FindClass(env, "java/nio/Buffer");
     position_r_mid = (*env)->GetMethodID(env, buffer_cls, "position", "()I");
     position_w_mid = (*env)->GetMethodID(env, buffer_cls, "position", "(I)Ljava/nio/Buffer;");
     limit_r_mid    = (*env)->GetMethodID(env, buffer_cls, "limit",    "()I");
+
+    pollfd_class = (*env)->FindClass(env, "org/nanomsg/NNPollFD");
+    pollfd_fd = (*env)->GetFieldID(env, pollfd_class, "fd", "I");
+    pollfd_events = (*env)->GetFieldID(env, pollfd_class, "events", "I");
+    pollfd_revents = (*env)->GetFieldID(env, pollfd_class, "revents", "I");
 
     return count;
 }
@@ -447,3 +478,37 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1setsockopt_1str(JNIEnv* 
     return ret;
 }
 
+JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1poll(JNIEnv* env,
+                                                            jobject obj,
+															jobjectArray pollfds,
+															jint timeout)
+{
+    jsize length = (*env)->GetArrayLength(env, pollfds);
+    if (length <= 0) return -1;
+
+	struct nn_pollfd *pfds =  (struct nn_pollfd *) malloc(sizeof(struct nn_pollfd) * length);
+	NANO_ASSERT(pfds);
+
+    int i;
+	for (i = 0; i < length; ++i)
+	{
+	    jobject pollfd = (*env)->GetObjectArrayElement(env, pollfds, i);
+	    pfds[i].fd = (*env)->GetIntField(env, pollfd, pollfd_fd);
+	    pfds[i].events = (*env)->GetIntField(env, pollfd, pollfd_events);
+	}
+
+	int ret = nn_poll(pfds, length, timeout);
+
+    if (ret > 0) {
+        for (i = 0; i < length; ++i)
+        {
+            jobject pollfd = (*env)->GetObjectArrayElement(env, pollfds, i);
+            (*env)->SetIntField(env, pollfd, pollfd_revents, pfds[i].revents);
+            (*env)->SetObjectArrayElement(env, pollfds, i, pollfd);
+        }
+    }
+
+    free(pfds);
+
+	return ret;
+}

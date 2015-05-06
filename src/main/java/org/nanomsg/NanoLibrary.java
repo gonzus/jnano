@@ -1,5 +1,6 @@
 package org.nanomsg;
 
+import java.lang.System;
 import java.util.Map;
 import java.util.HashMap;
 import java.nio.ByteBuffer;
@@ -61,6 +62,8 @@ public class NanoLibrary {
         NN_RESPONDENT = get_symbol("NN_RESPONDENT");
         NN_BUS = get_symbol("NN_BUS");
 
+        NN_POLLIN = get_symbol("NN_POLLIN");
+        NN_POLLOUT = get_symbol("NN_POLLOUT");
 
 		ENOTSUP = get_symbol("ENOTSUP");
 		EPROTONOSUPPORT = get_symbol("EPROTONOSUPPORT");
@@ -143,6 +146,8 @@ public class NanoLibrary {
 										int optidx,
                                         String optval);
 
+    public native int nn_poll(NNPollFD[] pollFDs,
+                              int timeout);
 
     public int get_version()
     {
@@ -222,6 +227,8 @@ public class NanoLibrary {
     public int NN_RESPONDENT = -1;
     public int NN_BUS = -1;
 
+    public int NN_POLLIN = -1;
+    public int NN_POLLOUT = -1;
 
 	public int  ENOTSUP = -1; 
 	public int  EPROTONOSUPPORT = -1; 
@@ -253,7 +260,7 @@ public class NanoLibrary {
 	public int  EISCONN = -1; 
 	public int  ESOCKTNOSUPPORT = -1; 
 	public int  ETERM = -1; 
-	public int  EFSM = -1;	
+	public int  EFSM = -1;
 
     private static void ensureNativeCode()
     {
@@ -263,4 +270,5 @@ public class NanoLibrary {
     private native int load_symbols(Map<String, Integer> map);
 
     private Map<String, Integer> symbols;
+
 }
