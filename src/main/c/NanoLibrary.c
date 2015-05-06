@@ -13,6 +13,11 @@ static jfieldID pollfd_fd;
 static jfieldID pollfd_events;
 static jfieldID pollfd_revents;
 
+struct symbol {
+    const char* name;
+    int val;
+};
+
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                                                   jobject obj,
                                                                   jobject map)
@@ -39,15 +44,55 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                "(I)V");
     NANO_ASSERT(mnew);
 
+    struct symbol symbols[100];
+    int symi = 0;
+
     for (count = 0; ; ++count) {
+        const char* ckey;
+        int cval;
+
+        ckey = nn_symbol(count, &cval);
+        if (ckey == 0)
+            break;
+
+        symbols[symi].name = ckey;
+        symbols[symi].val = cval;
+        symi++;
+    }
+
+    symbols[symi].name = "NN_POLLIN";
+    symbols[symi].val = NN_POLLIN;
+    symi++;
+
+
+    symbols[symi].name = "NN_POLLOUT";
+    symbols[symi].val = NN_POLLOUT;
+    symi++;
+
+
+    symbols[symi].name = "EACCESS";
+    symbols[symi].val = EACCESS;
+    symi++;
+
+
+    symbols[symi].name = "EISCONN";
+    symbols[symi].val = EISCONN;
+    symi++;
+
+
+    symbols[symi].name = "ESOCKTNOSUPPORT";
+    symbols[symi].val = ESOCKTNOSUPPORT;
+    symi++;
+
+    for (count = 0; count < symi; ++count)
+    {
         const char* ckey;
         int cval;
         jstring jkey =  0;
         jobject jval = 0;
 
-        ckey = nn_symbol(count, &cval);
-        if (ckey == 0)
-            break;
+        ckey = symbols[count].name;
+        cval = symbols[count].val;
         // fprintf(stderr, "Got symbol #%d: [%s] -> %d\n", count, ckey, cval);
 
         jkey = (*env)->NewStringUTF(env, ckey);
@@ -60,48 +105,6 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
 
         (*env)->CallObjectMethod(env, map, mput, jkey, jval);
         // fprintf(stderr, "Inserted symbol in map: [%s] -> %d\n", ckey, cval);
-    }
-
-    {
-        const char* ckey;
-        int cval;
-        jstring jkey =  0;
-        jobject jval = 0;
-
-        ckey = "NN_POLLIN"; cval = NN_POLLIN;
-        jkey = (*env)->NewStringUTF(env, ckey);
-        NANO_ASSERT(jkey);
-        jval = (*env)->NewObject(env, cint, mnew, cval);
-        NANO_ASSERT(jval);
-        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
-
-        ckey = "NN_POLLOUT"; cval = NN_POLLOUT;
-        jkey = (*env)->NewStringUTF(env, ckey);
-        NANO_ASSERT(jkey);
-        jval = (*env)->NewObject(env, cint, mnew, cval);
-        NANO_ASSERT(jval);
-        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
-
-        ckey = "EACCESS"; cval = EACCESS;
-        jkey = (*env)->NewStringUTF(env, ckey);
-        NANO_ASSERT(jkey);
-        jval = (*env)->NewObject(env, cint, mnew, cval);
-        NANO_ASSERT(jval);
-        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
-
-        ckey = "EISCONN"; cval = EISCONN;
-        jkey = (*env)->NewStringUTF(env, ckey);
-        NANO_ASSERT(jkey);
-        jval = (*env)->NewObject(env, cint, mnew, cval);
-        NANO_ASSERT(jval);
-        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
-
-        ckey = "ESOCKTNOSUPPORT"; cval = ESOCKTNOSUPPORT;
-        jkey = (*env)->NewStringUTF(env, ckey);
-        NANO_ASSERT(jkey);
-        jval = (*env)->NewObject(env, cint, mnew, cval);
-        NANO_ASSERT(jval);
-        (*env)->CallObjectMethod(env, map, mput, jkey, jval);
     }
 
     buffer_cls = (*env)->FindClass(env, "java/nio/Buffer");
