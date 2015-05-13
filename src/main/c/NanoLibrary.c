@@ -8,6 +8,16 @@ static jmethodID position_r_mid;
 static jmethodID position_w_mid;
 static jmethodID limit_r_mid;
 
+static jclass pollfd_class;
+static jfieldID pollfd_fd;
+static jfieldID pollfd_events;
+static jfieldID pollfd_revents;
+
+struct symbol {
+    const char* name;
+    int val;
+};
+
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                                                   jobject obj,
                                                                   jobject map)
@@ -34,15 +44,55 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                "(I)V");
     NANO_ASSERT(mnew);
 
+    struct symbol symbols[100];
+    int symi = 0;
+
     for (count = 0; ; ++count) {
+        const char* ckey;
+        int cval;
+
+        ckey = nn_symbol(count, &cval);
+        if (ckey == 0)
+            break;
+
+        symbols[symi].name = ckey;
+        symbols[symi].val = cval;
+        symi++;
+    }
+
+    symbols[symi].name = "NN_POLLIN";
+    symbols[symi].val = NN_POLLIN;
+    symi++;
+
+
+    symbols[symi].name = "NN_POLLOUT";
+    symbols[symi].val = NN_POLLOUT;
+    symi++;
+
+
+    symbols[symi].name = "EACCESS";
+    symbols[symi].val = EACCESS;
+    symi++;
+
+
+    symbols[symi].name = "EISCONN";
+    symbols[symi].val = EISCONN;
+    symi++;
+
+
+    symbols[symi].name = "ESOCKTNOSUPPORT";
+    symbols[symi].val = ESOCKTNOSUPPORT;
+    symi++;
+
+    for (count = 0; count < symi; ++count)
+    {
         const char* ckey;
         int cval;
         jstring jkey =  0;
         jobject jval = 0;
 
-        ckey = nn_symbol(count, &cval);
-        if (ckey == 0)
-            break;
+        ckey = symbols[count].name;
+        cval = symbols[count].val;
         // fprintf(stderr, "Got symbol #%d: [%s] -> %d\n", count, ckey, cval);
 
         jkey = (*env)->NewStringUTF(env, ckey);
@@ -61,6 +111,11 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
     position_r_mid = (*env)->GetMethodID(env, buffer_cls, "position", "()I");
     position_w_mid = (*env)->GetMethodID(env, buffer_cls, "position", "(I)Ljava/nio/Buffer;");
     limit_r_mid    = (*env)->GetMethodID(env, buffer_cls, "limit",    "()I");
+
+    pollfd_class = (*env)->FindClass(env, "org/nanomsg/NNPollFD");
+    pollfd_fd = (*env)->GetFieldID(env, pollfd_class, "fd", "I");
+    pollfd_events = (*env)->GetFieldID(env, pollfd_class, "events", "I");
+    pollfd_revents = (*env)->GetFieldID(env, pollfd_class, "revents", "I");
 
     return count;
 }
@@ -447,3 +502,37 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1setsockopt_1str(JNIEnv* 
     return ret;
 }
 
+JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1poll(JNIEnv* env,
+                                                            jobject obj,
+															jobjectArray pollfds,
+															jint timeout)
+{
+    jsize length = (*env)->GetArrayLength(env, pollfds);
+    if (length <= 0) return -1;
+
+	struct nn_pollfd *pfds =  (struct nn_pollfd *) malloc(sizeof(struct nn_pollfd) * length);
+	NANO_ASSERT(pfds);
+
+    int i;
+	for (i = 0; i < length; ++i)
+	{
+	    jobject pollfd = (*env)->GetObjectArrayElement(env, pollfds, i);
+	    pfds[i].fd = (*env)->GetIntField(env, pollfd, pollfd_fd);
+	    pfds[i].events = (*env)->GetIntField(env, pollfd, pollfd_events);
+	}
+
+	int ret = nn_poll(pfds, length, timeout);
+
+    if (ret > 0) {
+        for (i = 0; i < length; ++i)
+        {
+            jobject pollfd = (*env)->GetObjectArrayElement(env, pollfds, i);
+            (*env)->SetIntField(env, pollfd, pollfd_revents, pfds[i].revents);
+            (*env)->SetObjectArrayElement(env, pollfds, i, pollfd);
+        }
+    }
+
+    free(pfds);
+
+	return ret;
+}

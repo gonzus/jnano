@@ -1,5 +1,7 @@
 package org.nanomsg;
 
+import java.lang.IllegalArgumentException;
+import java.lang.System;
 import java.util.Map;
 import java.util.HashMap;
 import java.nio.ByteBuffer;
@@ -53,14 +55,14 @@ public class NanoLibrary {
         NN_SUB = get_symbol("NN_SUB");
         NN_REP = get_symbol("NN_REP");
         NN_REQ = get_symbol("NN_REQ");
-        NN_SOURCE = get_symbol("NN_SOURCE");
-        NN_SINK = get_symbol("NN_SINK");
         NN_PUSH = get_symbol("NN_PUSH");
         NN_PULL = get_symbol("NN_PULL");
         NN_SURVEYOR = get_symbol("NN_SURVEYOR");
         NN_RESPONDENT = get_symbol("NN_RESPONDENT");
         NN_BUS = get_symbol("NN_BUS");
 
+        NN_POLLIN = get_symbol("NN_POLLIN");
+        NN_POLLOUT = get_symbol("NN_POLLOUT");
 
 		ENOTSUP = get_symbol("ENOTSUP");
 		EPROTONOSUPPORT = get_symbol("EPROTONOSUPPORT");
@@ -143,6 +145,8 @@ public class NanoLibrary {
 										int optidx,
                                         String optval);
 
+    public native int nn_poll(NNPollFD[] pollFDs,
+                              int timeout);
 
     public int get_version()
     {
@@ -172,7 +176,7 @@ public class NanoLibrary {
     {
         Integer value = symbols.get(name);
         if (value == null)
-            return -1;
+            throw new IllegalArgumentException("Argument " + name + " not found in symbols.");
         return value.intValue();
     }
 
@@ -214,14 +218,14 @@ public class NanoLibrary {
     public int NN_SUB = -1;
     public int NN_REP = -1;
     public int NN_REQ = -1;
-    public int NN_SOURCE = -1;
-    public int NN_SINK = -1;
     public int NN_PUSH = -1;
     public int NN_PULL = -1;
     public int NN_SURVEYOR = -1;
     public int NN_RESPONDENT = -1;
     public int NN_BUS = -1;
 
+    public int NN_POLLIN = -1;
+    public int NN_POLLOUT = -1;
 
 	public int  ENOTSUP = -1; 
 	public int  EPROTONOSUPPORT = -1; 
@@ -253,7 +257,7 @@ public class NanoLibrary {
 	public int  EISCONN = -1; 
 	public int  ESOCKTNOSUPPORT = -1; 
 	public int  ETERM = -1; 
-	public int  EFSM = -1;	
+	public int  EFSM = -1;
 
     private static void ensureNativeCode()
     {
@@ -263,4 +267,5 @@ public class NanoLibrary {
     private native int load_symbols(Map<String, Integer> map);
 
     private Map<String, Integer> symbols;
+
 }
