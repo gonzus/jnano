@@ -13,10 +13,10 @@ static jfieldID pollfd_fd;
 static jfieldID pollfd_events;
 static jfieldID pollfd_revents;
 
-struct symbol {
+typedef struct {
     const char* name;
     int val;
-};
+}symbol_t;
 
 JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                                                   jobject obj,
@@ -27,6 +27,8 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
     jmethodID mput = 0;
     jmethodID mnew = 0;
     jint count = 0;
+    symbol_t symbols[140];
+    int symi = 0;
 
     cmap = (*env)->GetObjectClass(env, map);
     NANO_ASSERT(cmap);
@@ -43,9 +45,6 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_load_1symbols(JNIEnv* env,
                                "<init>",
                                "(I)V");
     NANO_ASSERT(mnew);
-
-    struct symbol symbols[100];
-    int symi = 0;
 
     for (count = 0; ; ++count) {
         const char* ckey;
@@ -396,9 +395,10 @@ JNIEXPORT jstring JNICALL Java_org_nanomsg_NanoLibrary_nn_1recvstr(JNIEnv* env,
                                                              jint flags)
 {
 	void *buf;
+	jstring retst;
 	int ret = nn_recv(socket, &buf, NN_MSG, flags);
 	if (ret < 0) return 0;
-	jstring retst = (*env)->NewStringUTF(env, buf);
+	retst = (*env)->NewStringUTF(env, buf);
 	nn_freemsg(buf);
 	return retst;
 }
@@ -409,10 +409,11 @@ JNIEXPORT jbyteArray JNICALL Java_org_nanomsg_NanoLibrary_nn_1recvbyte(JNIEnv* e
                                                              jint flags)
 {
 	void *buf;
+	jbyteArray result;
 	int ret = nn_recv(socket, &buf, NN_MSG, flags);
 	if (ret < 0) return 0;
-    jbyteArray result = (*env)->NewByteArray(env, ret);
-    (*env)->SetByteArrayRegion(env, result, 0, ret, (const jbyte*) buf);
+	result = (*env)->NewByteArray(env, ret);
+	(*env)->SetByteArrayRegion(env, result, 0, ret, (const jbyte*) buf);
 	nn_freemsg(buf);
 	return result;
 }
@@ -488,10 +489,11 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1setsockopt_1str(JNIEnv* 
     
     if (go) {
         char *cbuf;
+        size_t olen;
         cbuf = (*env)->GetStringUTFChars( env, optval , NULL ) ;
         NANO_ASSERT(cbuf);
 
-        size_t olen = strlen(cbuf);
+        olen = strlen(cbuf);
         ret = nn_setsockopt(socket, level, optidx, cbuf, olen);
         if (ret >= 0) {
             ret = olen;
@@ -507,13 +509,16 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1poll(JNIEnv* env,
 															jobjectArray pollfds,
 															jint timeout)
 {
+    struct nn_pollfd *pfds;
+    int i;
+    int ret;
     jsize length = (*env)->GetArrayLength(env, pollfds);
     if (length <= 0) return -1;
 
-	struct nn_pollfd *pfds =  (struct nn_pollfd *) malloc(sizeof(struct nn_pollfd) * length);
+	pfds =  (struct nn_pollfd *) malloc(sizeof(struct nn_pollfd) * length);
 	NANO_ASSERT(pfds);
 
-    int i;
+    
 	for (i = 0; i < length; ++i)
 	{
 	    jobject pollfd = (*env)->GetObjectArrayElement(env, pollfds, i);
@@ -521,7 +526,7 @@ JNIEXPORT jint JNICALL Java_org_nanomsg_NanoLibrary_nn_1poll(JNIEnv* env,
 	    pfds[i].events = (*env)->GetIntField(env, pollfd, pollfd_events);
 	}
 
-	int ret = nn_poll(pfds, length, timeout);
+	ret = nn_poll(pfds, length, timeout);
 
     if (ret > 0) {
         for (i = 0; i < length; ++i)
